@@ -1,401 +1,146 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
   <title>SmartList</title>
+
+  <!-- Ícones (carrinho) e favicon -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="icon" type="image/png" href="icon.png" />
+
   <style>
+    :root{
+      --bg:#f9fafb;
+      --txt:#111827;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --ok:#10B981;
 
-    :root {
-      --bg: #f9fafb;
-      --txt: #111827;
-      --muted: #6b7280;
-      --border: #e5e7eb;
-      --ok: #10B981;
-      --ink: #0b1220;
+      --primary:#000000;
+      --primary-hover:#0b132b;
+      --secondary:#4fc271;
 
-      /* ações */
-      --primary: #000000;
-      --primary-hover: #1d4ed8;
-      --secundary: #4fc271;
+      /* seu gradiente menta->azul */
+      --grad-blue-a:#84D7B3;
+      --grad-blue-b:#58A8D7;
+      --grad-amber-a:#FDE047;
+      --grad-amber-b:#F59E0B;
+      --grad-red-a:#F87171;
+      --grad-red-b:#DC2626;
 
-      /* gradientes */
-      --grad-blue-a: #84D7B3;
-      /* menta */
-      --grad-blue-b: #58A8D7;
-      /* azul claro */
-      --grad-amber-a: #FDE047;
-      --grad-amber-b: #F59E0B;
-      --grad-red-a: #F87171;
-      --grad-red-b: #DC2626;
-
-      --radius: 16px;
-      --shadow-1: 0 6px 12px rgba(0, 0, 0, .08);
-      --shadow-2: 0 10px 24px rgba(0, 0, 0, .10);
-      --maxw: 920px;
+      --radius:16px;
+      --shadow-1:0 6px 12px rgba(0,0,0,.08);
+      --shadow-2:0 10px 24px rgba(0,0,0,.10);
+      --maxw:920px;
     }
 
-    * {
-      box-sizing: border-box
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,'Helvetica Neue',Arial,'Noto Sans';
+      background:var(--bg); color:var(--txt);
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
     }
 
-    html,
-    body {
-      height: 100%
-    }
+    .container{max-width:var(--maxw); margin:0 auto; padding:24px 16px 56px}
 
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-      background: var(--bg);
-      color: var(--txt);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    .container {
-      max-width: var(--maxw);
-      margin: 0 auto;
-      padding: 24px 16px 56px;
-    }
-
-    h1 {
-      text-align: center;
-      margin: 4px 0 12px 0;
-      font-size: clamp(26px, 4.6vw, 34px);
-      font-weight: 800;
-      letter-spacing: .2px;
+    h1{
+      text-align:center;
+      margin:6px 0 12px;
+      font-size:clamp(26px,4.8vw,34px);
+      font-weight:800; letter-spacing:.2px;
     }
 
     /* Tabs */
-    .row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 12px;
-    }
-
-    .tabs {
-      display: inline-flex;
-      border-radius: 999px;
-      overflow: hidden;
-      background: #e5e7eb;
-      padding: 2px;
-    }
-
-    .tab {
-      padding: 10px 18px;
-      font-weight: 700;
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      color: #111827;
-      border-radius: 999px;
-      transition: background .2s ease, color .2s ease;
-    }
-
-    .tab.active {
-      background: #111827;
-      color: #fff;
-    }
+    .row{display:flex; gap:10px; align-items:center; justify-content:center; margin-bottom:12px}
+    .tabs{display:inline-flex; border-radius:999px; overflow:hidden; background:#e5e7eb; padding:2px}
+    .tab{padding:10px 18px; font-weight:700; border:none; background:transparent; cursor:pointer; color:#111827; border-radius:999px; transition:.2s}
+    .tab.active{background:#111827; color:#fff}
 
     /* Cards */
-    .card {
-      background: #fff;
-      border-radius: var(--radius);
-      padding: 16px;
-      margin: 12px auto;
-      box-shadow: var(--shadow-1);
+    .card{background:#fff; border-radius:var(--radius); padding:16px; margin:12px auto; box-shadow:var(--shadow-1)}
+    .card h3{margin:0 0 12px 2px; font-size:18px}
+
+    /* Summary (gradiente + transição) */
+    .summary{position:relative; overflow:hidden; color:#fff; padding:0; box-shadow:var(--shadow-2)}
+    .summary-inner{position:relative; padding:clamp(16px,5vw,28px); z-index:2}
+
+    .grad-base,.grad-overlay{position:absolute; inset:0; transition:opacity .35s ease}
+    .grad-base{opacity:1} .grad-overlay{opacity:0}
+    .grad-blue {background:linear-gradient(90deg,var(--grad-blue-a),var(--grad-blue-b))}
+    .grad-amber{background:linear-gradient(90deg,var(--grad-amber-a),var(--grad-amber-b))}
+    .grad-red  {background:linear-gradient(90deg,var(--grad-red-a),var(--grad-red-b))}
+
+    /* Métricas em GRID (4 col → 2 no mobile) */
+    .sum-grid{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap:clamp(10px,2.5vw,16px);
+      align-items:start;
     }
-
-    .card h3 {
-      margin: 0 0 12px 2px;
-      font-size: 18px
+    @media (max-width:780px){
+      .sum-grid{grid-template-columns: repeat(2, minmax(0,1fr))}
     }
+    .sum-grid p{margin:0; font-size:12px; opacity:.9}
+    .sum-grid h2{margin:4px 0 0; font-size:clamp(22px,4.5vw,30px); font-weight:800}
+    .sum-right{text-align:right}
 
-    /* Summary card (gradiente + overlay) */
-    .summary {
-      position: relative;
-      overflow: hidden;
-      color: #fff;
-      padding: 0;
-      box-shadow: var(--shadow-2);
+    /* Lista com rolagem própria */
+    .list{
+      list-style:none; padding:0; margin:0;
+      border:1px solid var(--border); border-radius:12px; overflow-y:auto;
+      max-height: min(420px, calc(100vh - 360px));
+      background:#fff;
     }
-
-    .summary-inner {
-      position: relative;
-      padding: 50px;
-      z-index: 2;
-    }
-
-    .grad-base,
-    .grad-overlay {
-      position: absolute;
-      inset: 0;
-      transition: opacity .35s ease;
-    }
-
-    .grad-base {
-      opacity: 1
-    }
-
-    .grad-overlay {
-      opacity: 0
-    }
-
-    .grad-blue {
-      background: linear-gradient(90deg, var(--grad-blue-a), var(--grad-blue-b));
-    }
-
-    .grad-amber {
-      background: linear-gradient(90deg, var(--grad-amber-a), var(--grad-amber-b));
-    }
-
-    .grad-red {
-      background: linear-gradient(90deg, var(--grad-red-a), var(--grad-red-b));
-    }
-
-    .sum-grid {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      flex-wrap: wrap;
-    }
-
-    .sum-grid>div {
-      min-width: 120px;
-      /* garante que não quebre feio em telas menores */
-    }
-
-    @media (max-width: 680px) {
-      .sum-grid {
-        grid-template-columns: 1fr 1fr;
-        row-gap: 16px;
-      }
-    }
-
-    .sum-grid p {
-      margin: 0;
-      font-size: 12px;
-      opacity: .9;
-    }
-
-    .sum-grid h2 {
-      margin: 4px 0 0 0;
-      font-size: clamp(22px, 4vw, 30px);
-      font-weight: 800;
-    }
-
-    .sum-right {
-      text-align: right;
-    }
-
-    /* Lista */
-    .list {
-  list-style: none;
-  max-height: calc(100vh - 350px); /* 100% da tela menos o espaço ocupado pelo cabeçalho */
-  padding: 0;
-  margin: 0;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow-y: auto;   /* ativa rolagem */
-  max-height: 400px;  /* limite de altura (ajuste como quiser) */
-}
-
-
-    .li {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .li:last-child {
-      border-bottom: none;
-    }
-
-    .left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex: 1;
-      min-width: 0;
-    }
-
-    .check {
-      width: 20px;
-      height: 20px;
-      border-radius: 6px;
-      border: 2px solid #d1d5db;
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      flex: 0 0 auto;
-      transition: all .15s ease;
-    }
-
-    .check.checked {
-      background: var(--ok);
-      border-color: var(--ok);
-      color: #fff;
-      font-size: 14px;
-      font-weight: 900;
-    }
-
-    .name {
-      font-weight: 600;
-      color: #1f2937;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .name.checked {
-      color: #9ca3af;
-      text-decoration: line-through;
-    }
-
-    .meta {
-      color: #6b7280;
-      font-size: 14px;
-    }
-
-    .item-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .icon-btn {
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      color: #9ca3af;
-      font-size: 16px;
-    }
-
-    .icon-btn:hover {
-      color: #6b7280;
-    }
-
-    .price-edit {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      margin-top: 4px;
-    }
-
-    .price-edit input {
-      min-width: 120px;
-      padding: 6px 10px;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-
-    .save {
-      background: #111827;
-      color: #fff;
-      border-radius: 8px;
-      padding: 6px 10px;
-      border: 0;
-      cursor: pointer;
-      font-weight: 700;
-    }
+    .li{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; border-bottom:1px solid var(--border)}
+    .li:last-child{border-bottom:none}
+    .left{display:flex; align-items:center; gap:12px; flex:1; min-width:0}
+    .check{width:20px; height:20px; border-radius:6px; border:2px solid #d1d5db; display:grid; place-items:center; cursor:pointer; flex:0 0 auto; transition:.15s}
+    .check.checked{background:var(--ok); border-color:var(--ok); color:#fff; font-size:14px; font-weight:900}
+    .name{font-weight:600; color:#1f2937; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+    .name.checked{color:#9ca3af; text-decoration:line-through}
+    .meta{color:#6b7280; font-size:14px}
+    .item-actions{display:flex; align-items:center; gap:8px}
+    .icon-btn{border:none; background:transparent; cursor:pointer; color:#9ca3af; font-size:16px}
+    .icon-btn:hover{color:#6b7280}
+    .price-edit{display:flex; gap:8px; align-items:center; margin-top:4px}
+    .price-edit input{min-width:120px; padding:6px 10px; border:1px solid #d1d5db; border-radius:8px; font-size:14px}
+    .save{background:#111827; color:#fff; border-radius:8px; padding:6px 10px; border:0; cursor:pointer; font-weight:700}
 
     /* Form */
-    .controls {
-      display: grid;
-      grid-template-columns: 1fr 200px;
-      gap: 10px;
+    .controls{display:grid; grid-template-columns:1fr 200px; gap:10px}
+    @media (max-width:760px){ .controls{grid-template-columns:1fr} }
+
+    input[type="text"],input[type="number"]{
+      width:100%; padding:12px 14px; border:1px solid #d1d5db; border-radius:10px; outline:none; background:#fff; font-size:16px
     }
 
-    @media (max-width:760px) {
-      .controls {
-        grid-template-columns: 1fr;
-      }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      padding:12px 14px; border:none; border-radius:10px; background:var(--primary);
+      color:#fff; font-weight:700; cursor:pointer; transition:background .15s, transform .05s
     }
+    .btn:hover{background:var(--primary-hover)} .btn:active{transform:translateY(1px)}
 
-    input[type="text"],
-    input[type="number"] {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1px solid #d1d5db;
-      border-radius: 10px;
-      outline: none;
-      background: #fff;
-      font-size: 16px;
+    /* ESTE era o culpado no mobile – agora 100% largura, sem padding fixo */
+    .btnadd{
+      width:100%;
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      padding:14px; border:none; border-radius:10px;
+      background:var(--secondary); color:#fff; font-weight:700; cursor:pointer;
+      white-space:nowrap;
+      transition:filter .15s, transform .05s;
     }
+    .btnadd:hover{filter:brightness(.95)} .btnadd:active{transform:translateY(1px)}
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 12px 14px;
-      border: none;
-      border-radius: 10px;
-      background: var(--ok);
-      background: var(--primary);
-      color: #fff;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background .15s ease, transform .05s ease;
-    }
-
-    .btnadd {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      white-space: nowrap;
-      padding: 20px 375px;
-      border: none;
-      border-radius: 10px;
-      background: var(--secundary);
-      color: #fff;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background .15s ease, transform .05s ease;
-    }
-
-    .btn:hover {
-      background: var(--primary-hover);
-    }
-
-    .btn:active {
-      transform: translateY(1px);
-    }
-
-    .btnadd:hover {
-      background: var(--primary-hover);
-    }
-
-    .btnadd:active {
-      transform: translateY(1px);
-    }
-
-    .empty {
-      display: grid;
-      place-items: center;
-      color: var(--muted);
-      padding: 28px;
-      border: 1px dashed var(--border);
-      border-radius: 12px;
-      background: #fff;
-    }
-
-    .muted {
-      color: var(--muted);
-    }
+    .empty{display:grid; place-items:center; gap:8px; color:var(--muted); padding:28px; border:1px dashed var(--border); border-radius:12px; background:#fff}
+    .muted{color:var(--muted)}
   </style>
 </head>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-<link rel="icon" type="image/png" href="icon.png" />
 
 <body>
   <main class="container" id="app" aria-busy="true">
@@ -408,7 +153,7 @@
       </div>
     </div>
 
-    <!-- Summary (gradiente com transição) -->
+    <!-- Summary -->
     <section class="card summary" aria-live="polite">
       <div id="gradBase" class="grad-base grad-blue"></div>
       <div id="gradOverlay" class="grad-overlay grad-blue"></div>
@@ -419,7 +164,7 @@
             <p>Total marcado (gasto)</p>
             <h2 id="spent">R$ 0,00</h2>
           </div>
-          <div>
+          <div class="sum-right">
             <p>Itens na lista</p>
             <h2 id="totalItems">0</h2>
           </div>
@@ -427,19 +172,18 @@
             <p>Comprados</p>
             <h2 id="boughtItems">0</h2>
           </div>
-          <div>
+          <div class="sum-right">
             <p>Restante do orçamento</p>
             <h2 id="remaining">—</h2>
           </div>
         </div>
-
       </div>
     </section>
 
-    <!-- Seção orçamento + adicionar -->
+    <!-- Orçamento + adicionar -->
     <section id="section-orcamento" class="card" hidden>
       <h3>Definir orçamento</h3>
-      <div class="controls" style="margin-bottom:12px;">
+      <div class="controls" style="margin-bottom:12px">
         <input id="budgetInput" type="number" step="0.01" placeholder="Ex: 250.00" />
         <button id="btnBudget" class="btn">Aplicar orçamento</button>
       </div>
@@ -449,16 +193,16 @@
         <input id="itemName" type="text" placeholder="Nome do item" />
         <input id="itemPrice" type="number" step="0.01" placeholder="Preço (opcional)" />
       </div>
-      <div class="row" style="justify-content:flex-end; margin-top:12px;">
+      <div class="row" style="justify-content:flex-end; margin-top:12px">
         <button id="btnAdd" class="btnadd">+ Adicionar à lista</button>
       </div>
     </section>
 
-    <!-- Seção Lista -->
+    <!-- Lista -->
     <section id="section-lista" class="card" aria-labelledby="lbl-lista">
       <h3 id="lbl-lista">Lista de Compras</h3>
       <div id="empty" class="empty">
-        <i class="fa-solid fa-cart-shopping" style="font-size:48px;color:#9ca3af;"></i>
+        <i class="fa-solid fa-cart-shopping" style="font-size:48px; color:#9ca3af"></i>
         <p>Nenhum item encontrado</p>
       </div>
       <ul id="shoppingList" class="list" aria-live="polite"></ul>
@@ -466,302 +210,173 @@
   </main>
 
   <script>
-    // ========= Estado + persistência (localStorage) =========
-    const STORAGE_KEYS = {
-      LIST: "smartapp:list:v1",
-      BUDGET: "smartapp:budget:v1",
-    };
-
+    // ======== Estado + persistência ========
+    const STORAGE_KEYS = { LIST: "smartapp:list:v1", BUDGET: "smartapp:budget:v1" };
     /** @type {{id:string,name:string,price:number|null,checked:boolean}[]} */
     let shoppingList = [];
-    /** @type {number} */
-    let budget = 0;
+    /** @type {number} */ let budget = 0;
 
-    function load() {
-      try {
+    function load(){
+      try{
         shoppingList = JSON.parse(localStorage.getItem(STORAGE_KEYS.LIST) || "[]");
         budget = Number(localStorage.getItem(STORAGE_KEYS.BUDGET) || "0");
-      } catch { shoppingList = []; budget = 0; }
+      }catch{ shoppingList=[]; budget=0; }
     }
-    function save() {
+    function save(){
       localStorage.setItem(STORAGE_KEYS.LIST, JSON.stringify(shoppingList));
       localStorage.setItem(STORAGE_KEYS.BUDGET, String(budget));
     }
 
-    // ========= Helpers =========
-    const fmtBRL = (v) =>
-      (isFinite(v) ? v : 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-
-    const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
-
-    // bandas de cor (igual app)
+    // ======== Helpers ========
+    const fmtBRL = v => (isFinite(v)?v:0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+    const clamp = (n,a,b)=>Math.max(a,Math.min(b,n));
     const BAND_THRESHOLDS = { amber: 0.5, red: 0.2 };
-    function bandFromPct(p) {
-      if (p >= BAND_THRESHOLDS.amber) return "blue";
-      if (p > BAND_THRESHOLDS.red) return "amber";
-      return "red";
-    }
+    function bandFromPct(p){ if(p>=BAND_THRESHOLDS.amber) return "blue"; if(p>BAND_THRESHOLDS.red) return "amber"; return "red"; }
 
-    // ========= Refs =========
+    // ======== Refs ========
     const $spent = document.getElementById("spent");
     const $remaining = document.getElementById("remaining");
     const $totalItems = document.getElementById("totalItems");
     const $boughtItems = document.getElementById("boughtItems");
-
     const $ul = document.getElementById("shoppingList");
     const $empty = document.getElementById("empty");
-
     const $budgetInput = document.getElementById("budgetInput");
     const $itemName = document.getElementById("itemName");
     const $itemPrice = document.getElementById("itemPrice");
-
     const $btnBudget = document.getElementById("btnBudget");
     const $btnAdd = document.getElementById("btnAdd");
-
     const $secLista = document.getElementById("section-lista");
     const $secOrc = document.getElementById("section-orcamento");
-
     const $tabLista = document.getElementById("tab-lista");
     const $tabOrc = document.getElementById("tab-orcamento");
-
     const $gradBase = document.getElementById("gradBase");
     const $gradOverlay = document.getElementById("gradOverlay");
 
-    // ========= Gradiente com transição =========
+    // ======== Gradiente com transição ========
     let baseBand = "blue";
-    function updateGradient(pctRemaining) {
+    function updateGradient(pctRemaining){
       const newBand = bandFromPct(pctRemaining);
-      if (newBand === baseBand) return;
-
+      if(newBand===baseBand) return;
       $gradOverlay.className = "grad-overlay grad-" + newBand;
       $gradOverlay.style.opacity = "1";
-      setTimeout(() => {
-        $gradBase.className = "grad-base grad-" + newBand;
-        $gradOverlay.style.opacity = "0";
-        baseBand = newBand;
-      }, 350);
+      setTimeout(()=>{ $gradBase.className="grad-base grad-"+newBand; $gradOverlay.style.opacity="0"; baseBand=newBand; },350);
     }
 
-    // ========= Contador suave do “Restante” =========
-    let animFrame = null;
-    let currentRemaining = 0;
-    function animateRemaining(toValue) {
-      if (animFrame) cancelAnimationFrame(animFrame);
-      const from = currentRemaining;
-      const duration = 400;
-      const start = performance.now();
-
-      function step(now) {
-        const t = Math.min(1, (now - start) / duration);
-        // ease-out
-        const eased = 1 - Math.pow(1 - t, 3);
-        currentRemaining = from + (toValue - from) * eased;
-        $remaining.textContent = budget > 0 ? fmtBRL(currentRemaining) : "—";
-        if (t < 1) animFrame = requestAnimationFrame(step);
+    // ======== Animação do restante ========
+    let animFrame=null, currentRemaining=0;
+    function animateRemaining(toValue){
+      if(animFrame) cancelAnimationFrame(animFrame);
+      const from=currentRemaining, duration=400, start=performance.now();
+      function step(now){
+        const t=Math.min(1,(now-start)/duration);
+        const eased = 1-Math.pow(1-t,3); // ease-out
+        currentRemaining = from + (toValue-from)*eased;
+        $remaining.textContent = budget>0 ? fmtBRL(currentRemaining) : "—";
+        if(t<1) animFrame=requestAnimationFrame(step);
       }
-      animFrame = requestAnimationFrame(step);
+      animFrame=requestAnimationFrame(step);
     }
 
-    // ========= Render =========
-    function renderSummary() {
-      const spent = shoppingList
-        .filter(i => i.checked)
-        .reduce((s, i) => s + (i.price ?? 0), 0);
+    // ======== Render ========
+    function renderSummary(){
+      const spent = shoppingList.filter(i=>i.checked).reduce((s,i)=>s+(i.price??0),0);
       const total = shoppingList.length;
-      const bought = shoppingList.filter(i => i.checked).length;
-
+      const bought = shoppingList.filter(i=>i.checked).length;
       const remainingRaw = budget - spent; // pode ser negativo
-      const pctRemaining = budget > 0 ? clamp(remainingRaw / budget, 0, 1) : 1;
+      const pctRemaining = budget>0 ? clamp(remainingRaw/budget, 0, 1) : 1;
 
       $spent.textContent = fmtBRL(spent);
       $totalItems.textContent = String(total);
       $boughtItems.textContent = String(bought);
-
       animateRemaining(remainingRaw);
       updateGradient(pctRemaining);
     }
 
-    function renderList() {
-      $ul.innerHTML = "";
-      if (shoppingList.length === 0) {
-        $empty.style.display = "grid";
-        return;
-      }
-      $empty.style.display = "none";
+    function renderList(){
+      $ul.innerHTML="";
+      if(shoppingList.length===0){ $empty.style.display="grid"; return; }
+      $empty.style.display="none";
 
-      shoppingList.forEach((item, idx) => {
-        const li = document.createElement("li");
-        li.className = "li";
+      shoppingList.forEach((item, idx)=>{
+        const li=document.createElement("li"); li.className="li";
 
-        const left = document.createElement("div");
-        left.className = "left";
+        const left=document.createElement("div"); left.className="left";
+        const check=document.createElement("div");
+        check.className="check"+(item.checked?" checked":"");
+        check.textContent=item.checked?"✓":""; check.title=item.checked?"Desmarcar":"Marcar";
+        check.addEventListener("click",()=>{ item.checked=!item.checked; save(); renderSummary(); renderList(); });
 
-        const check = document.createElement("div");
-        check.className = "check" + (item.checked ? " checked" : "");
-        check.title = item.checked ? "Desmarcar" : "Marcar";
-        check.textContent = item.checked ? "✓" : "";
-        check.addEventListener("click", () => {
-          item.checked = !item.checked;
-          save(); renderSummary(); renderList();
-        });
+        const textWrap=document.createElement("div"); textWrap.style.flex="1";
+        const name=document.createElement("div"); name.className="name"+(item.checked?" checked":""); name.textContent=item.name;
+        const meta=document.createElement("div"); meta.className="meta";
 
-        const textWrap = document.createElement("div");
-        textWrap.style.flex = "1";
-        const name = document.createElement("div");
-        name.className = "name" + (item.checked ? " checked" : "");
-        name.textContent = item.name;
+        const editWrap=document.createElement("div"); editWrap.className="price-edit"; editWrap.style.display="none";
+        const priceInput=document.createElement("input"); priceInput.type="number"; priceInput.step="0.01"; priceInput.placeholder="Ex: 5.99"; priceInput.value=item.price ?? "";
+        const saveBtn=document.createElement("button"); saveBtn.className="save"; saveBtn.textContent="Salvar";
+        const cancelBtn=document.createElement("button"); cancelBtn.className="icon-btn"; cancelBtn.textContent="✕";
 
-        const meta = document.createElement("div");
-        meta.className = "meta";
-
-        const editWrap = document.createElement("div");
-        editWrap.className = "price-edit";
-        editWrap.style.display = "none";
-
-        const priceInput = document.createElement("input");
-        priceInput.type = "number";
-        priceInput.step = "0.01";
-        priceInput.placeholder = "Ex: 5.99";
-        priceInput.value = item.price ?? "";
-
-        const saveBtn = document.createElement("button");
-        saveBtn.className = "save";
-        saveBtn.textContent = "Salvar";
-
-        const cancelBtn = document.createElement("button");
-        cancelBtn.className = "icon-btn";
-        cancelBtn.textContent = "✕";
-
-        const metaText = () => (item.price != null ? fmtBRL(item.price) : "— sem preço —");
+        const metaText = ()=> item.price!=null ? fmtBRL(item.price) : "— sem preço —";
         meta.textContent = metaText();
 
-        saveBtn.addEventListener("click", () => {
-          const v = parseFloat(String(priceInput.value).replace(",", "."));
-          if (String(priceInput.value).trim() && (Number.isNaN(v) || v < 0)) {
-            alert("Preço inválido");
-            return;
-          }
+        saveBtn.addEventListener("click",()=>{
+          const v=parseFloat(String(priceInput.value).replace(",","."));
+          if(String(priceInput.value).trim() && (Number.isNaN(v) || v<0)){ alert("Preço inválido"); return; }
           item.price = String(priceInput.value).trim() ? v : null;
-          editWrap.style.display = "none";
-          meta.textContent = metaText();
-          save(); renderSummary();
+          editWrap.style.display="none"; meta.textContent=metaText(); save(); renderSummary();
         });
-        cancelBtn.addEventListener("click", () => {
-          editWrap.style.display = "none";
-          priceInput.value = item.price ?? "";
-        });
+        cancelBtn.addEventListener("click",()=>{ editWrap.style.display="none"; priceInput.value=item.price ?? ""; });
 
-        editWrap.appendChild(priceInput);
-        editWrap.appendChild(saveBtn);
-        editWrap.appendChild(cancelBtn);
+        editWrap.append(priceInput, saveBtn, cancelBtn);
+        textWrap.append(name, meta, editWrap);
+        left.append(check, textWrap);
 
-        textWrap.appendChild(name);
-        textWrap.appendChild(meta);
-        textWrap.appendChild(editWrap);
+        const actions=document.createElement("div"); actions.className="item-actions";
+        const editBtn=document.createElement("button"); editBtn.className="icon-btn"; editBtn.title="Editar preço"; editBtn.textContent="✎";
+        editBtn.addEventListener("click",()=>{ editWrap.style.display = editWrap.style.display==="none" ? "flex" : "none"; if(editWrap.style.display==="flex") priceInput.focus(); });
+        const delBtn=document.createElement("button"); delBtn.className="icon-btn"; delBtn.title="Remover"; delBtn.textContent="🗑";
+        delBtn.addEventListener("click",()=>{ shoppingList.splice(idx,1); save(); renderSummary(); renderList(); });
+        actions.append(editBtn, delBtn);
 
-        left.appendChild(check);
-        left.appendChild(textWrap);
-
-        const actions = document.createElement("div");
-        actions.className = "item-actions";
-
-        const editBtn = document.createElement("button");
-        editBtn.className = "icon-btn";
-        editBtn.title = "Editar preço";
-        editBtn.textContent = "✎";
-        editBtn.addEventListener("click", () => {
-          editWrap.style.display = editWrap.style.display === "none" ? "flex" : "none";
-          if (editWrap.style.display === "flex") priceInput.focus();
-        });
-
-        const delBtn = document.createElement("button");
-        delBtn.className = "icon-btn";
-        delBtn.title = "Remover";
-        delBtn.textContent = "🗑";
-        delBtn.addEventListener("click", () => {
-          shoppingList.splice(idx, 1);
-          save(); renderSummary(); renderList();
-        });
-
-        actions.appendChild(editBtn);
-        actions.appendChild(delBtn);
-
-        li.appendChild(left);
-        li.appendChild(actions);
+        li.append(left, actions);
         $ul.appendChild(li);
       });
     }
 
-    // ========= ações =========
-    function applyBudget() {
-      const raw = $budgetInput.value.trim();
-      const v = parseFloat(raw.replace(",", "."));
-      if (!raw || Number.isNaN(v) || v <= 0) {
-        alert("Informe um orçamento maior que zero.");
-        return;
-      }
-      budget = v;
-      save();
-      renderSummary();
+    // ======== Ações ========
+    function applyBudget(){
+      const raw=$budgetInput.value.trim();
+      const v=parseFloat(raw.replace(",","."));
+      if(!raw || Number.isNaN(v) || v<=0){ alert("Informe um orçamento maior que zero."); return; }
+      budget=v; save(); renderSummary();
+    }
+    function addItem(){
+      const name=$itemName.value.trim();
+      const p=parseFloat(($itemPrice.value||"").replace(",","."));
+      if(!name){ alert("Informe o nome do item."); return; }
+      if($itemPrice.value.trim() && (Number.isNaN(p) || p<0)){ alert("Preço inválido"); return; }
+      shoppingList.unshift({ id:String(Date.now()), name, price:$itemPrice.value.trim()?p:null, checked:false });
+      $itemName.value=""; $itemPrice.value=""; save(); renderSummary(); renderList();
     }
 
-    function addItem() {
-      const name = $itemName.value.trim();
-      const p = parseFloat(($itemPrice.value || "").replace(",", "."));
-      if (!name) {
-        alert("Informe o nome do item.");
-        return;
-      }
-      if ($itemPrice.value.trim() && (Number.isNaN(p) || p < 0)) {
-        alert("Preço inválido");
-        return;
-      }
-      shoppingList.unshift({
-        id: String(Date.now()),
-        name,
-        price: $itemPrice.value.trim() ? p : null,
-        checked: false
-      });
-      $itemName.value = ""; $itemPrice.value = "";
-      save(); renderSummary(); renderList();
-    }
+    // ======== Tabs ========
+    function showLista(){ $tabLista.classList.add("active"); $tabOrc.classList.remove("active"); $secLista.hidden=false; $secOrc.hidden=true; }
+    function showOrcamento(){ $tabOrc.classList.add("active"); $tabLista.classList.remove("active"); $secLista.hidden=true; $secOrc.hidden=false; $budgetInput.placeholder = budget>0 ? String(budget) : "Ex: 250.00"; setTimeout(()=>$budgetInput.focus(),0); }
 
-    // ========= Tabs =========
-    function showLista() {
-      $tabLista.classList.add("active");
-      $tabOrc.classList.remove("active");
-      $secLista.hidden = false;
-      $secOrc.hidden = true;
-    }
-    function showOrcamento() {
-      $tabOrc.classList.add("active");
-      $tabLista.classList.remove("active");
-      $secLista.hidden = true;
-      $secOrc.hidden = false;
-      $budgetInput.placeholder = budget > 0 ? String(budget) : "Ex: 250.00";
-      setTimeout(() => $budgetInput.focus(), 0);
-    }
-
-    // ========= boot =========
-    document.addEventListener("DOMContentLoaded", () => {
+    // ======== Boot ========
+    document.addEventListener("DOMContentLoaded", ()=>{
       load();
-
       $btnBudget.addEventListener("click", applyBudget);
       $btnAdd.addEventListener("click", addItem);
       $tabLista.addEventListener("click", showLista);
       $tabOrc.addEventListener("click", showOrcamento);
+      $budgetInput.addEventListener("keydown", e=>{ if(e.key==="Enter") applyBudget(); });
+      $itemName.addEventListener("keydown", e=>{ if(e.key==="Enter") $itemPrice.focus(); });
+      $itemPrice.addEventListener("keydown", e=>{ if(e.key==="Enter") addItem(); });
 
-      $budgetInput.addEventListener("keydown", e => { if (e.key === "Enter") applyBudget(); });
-      $itemName.addEventListener("keydown", e => { if (e.key === "Enter") $itemPrice.focus(); });
-      $itemPrice.addEventListener("keydown", e => { if (e.key === "Enter") addItem(); });
-
-      // primeiro render
-      currentRemaining = budget; // inicial do contador
-      renderSummary();
-      renderList();
+      currentRemaining = budget; // ponto inicial da animação
+      renderSummary(); renderList();
       document.getElementById("app").removeAttribute("aria-busy");
     });
   </script>
 </body>
-
 </html>
